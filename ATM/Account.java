@@ -1,8 +1,9 @@
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class Account {
+public class Account implements Serializable {
 	// variables
 	private int customerNumber;
 	private int pinNumber;
