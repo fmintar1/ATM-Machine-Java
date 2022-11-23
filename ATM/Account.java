@@ -1,3 +1,6 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.InputMismatchException;
@@ -56,30 +59,70 @@ public class Account implements Serializable {
 
 	public double calcCheckingWithdraw(double amount) {
 		checkingBalance = (checkingBalance - amount);
+		try {
+			transactionHistory(getCustomerNumber(),"Withdrawal", "Checking", amount);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		return checkingBalance;
 	}
 
 	public double calcSavingWithdraw(double amount) {
+		try {
+			transactionHistory(getCustomerNumber(),"Withdrawal", "Saving", amount);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		savingBalance = (savingBalance - amount);
 		return savingBalance;
 	}
 
 	public double calcCheckingDeposit(double amount) {
+		try {
+			transactionHistory(getCustomerNumber(),"Deposit", "Checking", amount);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		checkingBalance = (checkingBalance + amount);
 		return checkingBalance;
 	}
 
 	public double calcSavingDeposit(double amount) {
+		try {
+			transactionHistory(getCustomerNumber(),"Deposit", "Saving", amount);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		savingBalance = (savingBalance + amount);
 		return savingBalance;
 	}
 
 	public void calcCheckTransfer(double amount) {
+		try {
+			transactionHistory(getCustomerNumber(),"Withdrawal", "Checking", amount);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		try {
+			transactionHistory(getCustomerNumber(),"Deposit", "Saving", amount);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		checkingBalance = checkingBalance - amount;
 		savingBalance = savingBalance + amount;
 	}
 
 	public void calcSavingTransfer(double amount) {
+		try {
+			transactionHistory(getCustomerNumber(),"Withdrawal", "Saving", amount);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		try {
+			transactionHistory(getCustomerNumber(),"Deposit", "Checking", amount);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		savingBalance = savingBalance - amount;
 		checkingBalance = checkingBalance + amount;
 	}
@@ -232,5 +275,11 @@ public class Account implements Serializable {
 				input.next();
 			}
 		}
+	}
+	public void transactionHistory(int id, String transactionType, String accountsType, double amount) throws IOException {
+		BufferedWriter save = new BufferedWriter(new FileWriter("TransactionLog.txt", true));
+		save.write(String.format("%s\t\t%s\t\t%s\t\t%f\n",id, transactionType, accountsType, amount));
+		System.out.println("Saved");
+		save.close();
 	}
 }

@@ -249,28 +249,48 @@ public class OptionMenu {
 	}
 
 	public void idStorage() throws IOException {
+		String line = "";
 		Account account;
+		StringBuffer buffer = new StringBuffer();
 		BufferedWriter save = new BufferedWriter(new FileWriter("/Users/freddy/Projects/ATM-Machine-Java/Account.txt", true));
-		account = data.get(cst_no);
-		int id = account.getCustomerNumber();
-		int pass = account.getPinNumber();
-		double check = account.getCheckingBalance();
-		double saving = account.getSavingBalance();
-		save.write(String.format("%s,%s,%f,%f\n",id, pass, check, saving));
+		BufferedReader reader = new BufferedReader(new FileReader("/Users/freddy/Projects/ATM-Machine-Java/Account.txt"));
+		for (int i : data.keySet()) {
+			while ((line = reader.readLine()) != null) {
+				String[] separate = line.split(",");
+				if (i == Integer.parseInt(separate[0])) {
+					buffer.replace(0,line.length(), String.format("%s,%s,%f,%f\n", i, separate[1], data.get(i).getCheckingBalance(), data.get(i).getSavingBalance()));
+					FileOutputStream fileOut = new FileOutputStream("/Users/freddy/Projects/ATM-Machine-Java/Account.txt");
+					fileOut.write(buffer.toString().getBytes());
+				} else if (i != Integer.parseInt(separate[0])) {
+					account = data.get(i);
+					int id = account.getCustomerNumber();
+					int pass = account.getPinNumber();
+					double check = account.getCheckingBalance();
+					double saving = account.getSavingBalance();
+					save.write(String.format("%s,%s,%f,%f\n", id, pass, check, saving));
+					break;
+				}
+			}
+		}
 		System.out.println("Saved");
 		save.close();
-	}
+		}
+
 	public void accountLoader() {
 		String line = "";
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader("/Users/freddy/Projects/ATM-Machine-Java/Account.txt"));
 			while((line = reader.readLine()) != null) {
 				String[] separate = line.split(",");
-				for (int i = 0; i < separate.length; i++) {
+				for (int i = 0; i < separate.length/4; i++) {
 					int id = Integer.parseInt(separate[0]);
+					System.out.print(id + " ");
 					int pass = Integer.parseInt(separate[1]);
+					System.out.print(pass + " ");
 					double check = Double.parseDouble(separate[2]);
+					System.out.print(check + " ");
 					double saving = Double.parseDouble(separate[3]);
+					System.out.print(saving + "\n");
 					Account account = new Account(id, pass, check, saving);
 					data.put(id, account);
 				}
@@ -280,6 +300,7 @@ public class OptionMenu {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+		System.out.println("Loaded");
 	}
 	public void clearAccount() throws IOException {
 		BufferedWriter save = new BufferedWriter(new FileWriter("/Users/freddy/Projects/ATM-Machine-Java/Account.txt"));
